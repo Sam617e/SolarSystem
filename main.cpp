@@ -64,31 +64,43 @@ int main()
         // NOTE (PART D): Try sqrt(2GM/r) = sqrt(2)*2*M_PI for escape speed
         // NOTE (PART E): Simply change Jupiter's mass to see how it affects Earth's orbit
         // (mass,x,y,z,vx,vy,vz), Vel ~ 2*M_PI/sqrt(r)
-        double r[10]; // contains distance (in AU) from sun for each body, in order of planet distance
-        double r[0] = 0; // Sun
-        double r[1] = 0.39; // Mercury
-        double r[2] = 0.72; // Venus
-        double r[3] = 1.0; // Earth
-        double r[4] = 1.52; // Mars
-        double r[5] = 5.20; // Jupiter
-        double r[6] = 9.54; // Saturn
-        double r[7] = 19.19; // Uranus
-        double r[8] = 30.06; // Neptune
-        double r[9] = 39.53 // Pluto
 
-        planet Earth(0.000003,r[3],0,0.0,0,2*M_PI,0);
-        planet Jupiter(0.0009546,r[5],0,0,0,2*M_PI/sqrt(5.20),0);
-        planet Mercury(0.0000001659,r[1],0,0,0,2*M_PI/sqrt(0.39),0);
-        planet Venus(0.00000246,r[2],0,0,0,2*M_PI/sqrt(0.72),0);
-        planet Mars(0.0000003318,r[4],0,0,0,2*M_PI/sqrt(1.52),0);
-        planet Saturn(0.0002765,r[6],0,0,0,2*M_PI/sqrt(9.54),0);
-        planet Uranus(0.00004424,r[7],0,0,0,2*M_PI/sqrt(19.19),0);
-        planet Neptune(0.00005178,r[8],0,0,0,2*M_PI/sqrt(30.06),0);
-        planet Pluto(0.000000006586,r[9],0,0,0,2*M_PI/sqrt(39.53),0);
-        planet Sun(1.,r[]0,0.,0.,0.,0.,0.);
+        // contains distance (in AU) from sun for each body, in order of planet distance
+        double r[10] = {0.0, 0.39, 0.72, 1.0, 1.52, 5.20, 9.54, 19.19, 30.06, 39.53};
+        // contains masses of each body as a fraction of the Sun's mass, in order of distance
+        double mass[10] = {1.0, 0.0000001659, 0.00000246, 0.000003, 0.0000003318, 0.0009546, 0.0002765, 0.00004424, 0.00005178, 0.000000006586};
 
         // NOTE (PART F): Center of Mass calculations for the whole system:
-        // int CoM =
+        double CoM = 0;
+        double totalMass = 0;
+        // Calculates center of mass
+        for(int i = 0; i < 10; i++){
+            CoM += r[i]*mass[i];
+            totalMass += mass[i];
+        }
+        CoM = CoM/totalMass;
+        // New positions relative to the center of mass of the solar system
+        double r_new[10];
+        for(int i = 0; i < 10; i++){
+            r_new[i] = r[i] - CoM;
+        }
+        // Calculates new sun velocity to balance the momentum of the entire system
+        // In the y-direction
+        double sun_velocity = 0;
+        for(int i = 1; i < 10; i++){
+            sun_velocity -= 2*M_PI*(mass[i]/sqrt(r[i]));
+        }
+        // To do the new center of mass simulation (part F), simply replace r with r_new, and give the sun its sun_velocity
+        planet Earth(mass[3],r[3],0,0.0,0,2*M_PI,0);
+        planet Jupiter(mass[5],r[5],0,0,0,2*M_PI/sqrt(r[5]),0);
+        planet Mercury(mass[1],r[1],0,0,0,2*M_PI/sqrt(r[1]),0);
+        planet Venus(mass[2],r[2],0,0,0,2*M_PI/sqrt(r[2]),0);
+        planet Mars(mass[4],r[4],0,0,0,2*M_PI/sqrt(r[4]),0);
+        planet Saturn(mass[6],r[6],0,0,0,2*M_PI/sqrt(r[6]),0);
+        planet Uranus(mass[7],r[7],0,0,0,2*M_PI/sqrt(r[7]),0);
+        planet Neptune(mass[8],r[8],0,0,0,2*M_PI/sqrt(r[8]),0);
+        planet Pluto(mass[9],r[9],0,0,0,2*M_PI/sqrt(r[9]),0);
+        planet Sun(mass[0],r[0],0.,0.,0.,0.,0.);
 
         solver binary_vv(5.0);
 
@@ -109,20 +121,20 @@ int main()
             x[i] = Earth.position[i];
             v[i] = Earth.velocity[i];
         }
-/*
+ /*
         for(int i = 0; i < Dimension; i++){
             xJ[i] = Jupiter.position[i];
             vJ[i] = Jupiter.velocity[i];
         }
-*/
+ */
         cout << "Initial Earth values: "<< endl;
         PrintInitialValues(Dimension,TimeStep,FinalTime,x,v,IntegrationPoints);
         cout << endl;
-/*
+ /*
         cout << "Initial Jupiter values: "<< endl;
         PrintInitialValues(Dimension,TimeStep,FinalTime,xJ,vJ,IntegrationPoints);
         cout << endl;
-*/
+ */
         // Uncomment the second pair of lines to use the Euler algorithm
         cout << "Velocity Verlet results for the system:" << endl;
         binary_vv.VelocityVerlet(Dimension,IntegrationPoints,FinalTime,1,0.);
@@ -133,12 +145,12 @@ int main()
             x[j] = binary_vv.all_planets[0].position[j];
             v[j] = binary_vv.all_planets[0].velocity[j];
         }
-/*
+ /*
         for(int j = 0; j < Dimension;j++){
             xJ[j] = binary_vv.all_planets[1].position[j];
             vJ[j] = binary_vv.all_planets[1].velocity[j];
         }
-*/
+ */
         PrintFinalValues(Dimension,x,v);
         cout << endl;
         //cout << "Jupiter positions and velocities: " << endl;
@@ -147,9 +159,9 @@ int main()
     return 0;
 }
 
-/*
-// CENTER OF MASS SYSTEM
 
+// CENTER OF MASS SYSTEM
+/*
 int main()
 {
     int IntegrationPoints;  // No. of integration points
