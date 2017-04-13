@@ -50,8 +50,8 @@ int main()
         cout << "Solar System" << endl;
         Dimension = 3;
 
-        IntegrationPoints = 10000;
-        FinalTime = 50.; // units: years
+        IntegrationPoints = 100000;
+        FinalTime = 500.; // units: years
 
         double TimeStep = FinalTime/((double) IntegrationPoints);
         double x[3],v[3];  // positions and velocities
@@ -136,8 +136,13 @@ int main()
         cout << endl;
  */
         // Uncomment the second pair of lines to use the Euler algorithm
+
+        // The second-to-last argument determines the number of planets' information
+        //     that is outputted in a text file after the program is run. For example,
+        //     make that number "2" if you are doing a system with both Earth and Jupiter.
+
         cout << "Velocity Verlet results for the system:" << endl;
-        binary_vv.VelocityVerlet(Dimension,IntegrationPoints,FinalTime,1,0.);
+        binary_vv.VelocityVerlet(Dimension,IntegrationPoints,FinalTime,10,0.);
         //cout << "Velocity Euler results for the Sun-Earth system:" << endl;
         //binary_vv.VelocityEuler(Dimension,IntegrationPoints,FinalTime,1,0.);
 
@@ -158,76 +163,3 @@ int main()
 
     return 0;
 }
-
-
-// CENTER OF MASS SYSTEM
-/*
-int main()
-{
-    int IntegrationPoints;  // No. of integration points
-    double FinalTime;       // End time of calculation
-    int Dimension;           // No. of spatial dimensions
-
-        cout << "Earth-Sun binary system" << endl;
-        Dimension = 3;
-
-        IntegrationPoints = 10000;
-        FinalTime = 50.;
-        // time_step = FinalTime/IntegrationPoints
-
-        double TimeStep = FinalTime/((double) IntegrationPoints);
-        double x[3],v[3];  // positions and velocities
-        double xJ[3],vJ[3]; // Jupiter positions and velocities
-        // initial position x = 1AU, y = z = 0, vx = 2pi, vy=0, vz=0
-        planet planet1(0.000003,0.9950378,0,0.0,0,2*M_PI,0); // Earth: (mass,x,y,z,vx,vy,vz)
-        planet planet2(0.0009546,5.195,0,0,0,2*M_PI/sqrt(5.20),0); // Jupiter //vel ~ 2*M_PI/sqrt(5.20) ~ 2.7553590
-        planet planet3(1.,-0.0049622,0.,0.,0.,-2*M_PI*(0.000003+0.0009546/sqrt(5.20)),0.); // Sun: (mass,x,y,z,vx,vy,vz)
-        //NOTE (PART C): Try sqrt(GM/r) for speed producing a circular orbit
-       // GM = 4*M_PI*M_PI -> v = 2*M_PI/sqrt(r) = 2*M_PI
-       // NOTE (PART D): Try sqrt(2GM/r) = sqrt(2)*2*M_PI ~ 8.8857659 for escape speed
-        solver binary_vv(5.0);
-        binary_vv.add(planet1);
-        binary_vv.add(planet2);
-        binary_vv.add(planet3);
-
-        //cout << "pos: " << x << endl;
-        for(int i = 0; i < Dimension; i++){
-            x[i] = planet1.position[i];
-            v[i] = planet1.velocity[i];
-        }
-
-        for(int i = 0; i < Dimension; i++){
-            xJ[i] = planet2.position[i];
-            vJ[i] = planet2.velocity[i];
-        }
-        cout << "Initial Earth values: "<< endl;
-        PrintInitialValues(Dimension,TimeStep,FinalTime,x,v,IntegrationPoints);
-        cout << endl;
-
-        cout << "Initial Jupiter values: "<< endl;
-        PrintInitialValues(Dimension,TimeStep,FinalTime,xJ,vJ,IntegrationPoints);
-        cout << endl;
-
-        cout << "Velocity Verlet results for the Sun-Jupiter system:" << endl;
-        binary_vv.VelocityVerlet(Dimension,IntegrationPoints,FinalTime,1,0.);
-        //cout << "Velocity Euler results for the Sun-Earth system:" << endl;
-        //binary_vv.VelocityEuler(Dimension,IntegrationPoints,FinalTime,1,0.);
-
-        for(int j = 0; j < Dimension;j++){
-            x[j] = binary_vv.all_planets[0].position[j];
-            v[j] = binary_vv.all_planets[0].velocity[j];
-        }
-
-        for(int j = 0; j < Dimension;j++){
-            xJ[j] = binary_vv.all_planets[1].position[j];
-            vJ[j] = binary_vv.all_planets[1].velocity[j];
-        }
-
-        PrintFinalValues(Dimension,x,v);
-        cout << endl;
-        cout << "Jupiter positions and velocities: " << endl;
-        PrintFinalValues(Dimension,xJ,vJ);
-
-    return 0;
-}
-*/
